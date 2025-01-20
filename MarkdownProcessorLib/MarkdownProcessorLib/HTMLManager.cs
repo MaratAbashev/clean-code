@@ -9,7 +9,7 @@ namespace MarkdownProcessorLib
 {
     public class HTMLManager : IHTMLManager
     {
-        public void CreateHTML(string text)
+        public void CreateHTML(string parsedText)
         {
             throw new NotImplementedException();
         }
