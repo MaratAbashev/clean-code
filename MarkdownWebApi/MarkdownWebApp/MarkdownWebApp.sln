@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownWebApp.Api", "MarkdownWebApp.Api\MarkdownWebApp.Api.csproj", "{7FEB86C5-F337-44C2-B314-90DC40B6CDCF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownWebApp.DataAccess.Postgres", "MarkdownWebApp.DataAccess.Postgres\MarkdownWebApp.DataAccess.Postgres.csproj", "{00A093D6-CBB5-430C-B192-8A4D894EA6D0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7FEB86C5-F337-44C2-B314-90DC40B6CDCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FEB86C5-F337-44C2-B314-90DC40B6CDCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FEB86C5-F337-44C2-B314-90DC40B6CDCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FEB86C5-F337-44C2-B314-90DC40B6CDCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00A093D6-CBB5-430C-B192-8A4D894EA6D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00A093D6-CBB5-430C-B192-8A4D894EA6D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00A093D6-CBB5-430C-B192-8A4D894EA6D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00A093D6-CBB5-430C-B192-8A4D894EA6D0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
