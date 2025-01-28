@@ -20,4 +20,9 @@
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.3" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\MarkdownWebApi.Application\MarkdownWebApi.Application.csproj" />
+      <ProjectReference Include="..\MarkdownWebApi.Core\MarkdownWebApi.Core.csproj" />
+    </ItemGroup>
+
 </Project>
