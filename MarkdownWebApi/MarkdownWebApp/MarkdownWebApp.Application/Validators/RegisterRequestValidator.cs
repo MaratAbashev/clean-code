@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
-using MarkdownWebApi.Application.Contracts.Repositories;
+using MarkdownWebApi.Application.Interfaces.Repositories;
 using MarkdownWebApp.Api.Contracts.Users;
 
-namespace MarkdownWebApi.Application;
+namespace MarkdownWebApi.Application.Validators;
 
 public class RegisterRequestValidator: AbstractValidator<RegisterUserRequest>
 {
@@ -12,7 +12,7 @@ public class RegisterRequestValidator: AbstractValidator<RegisterUserRequest>
             .NotEmpty()
             .EmailAddress()
             .WithMessage("Email address is required")
-            .MustAsync(async (email, _) => await userRepository.UserExists(email))
+            .MustAsync(async (email, _) => !await userRepository.UserExists(email))
             .WithMessage("This email address is already taken");
         RuleFor(r => r.UserName)
             .NotEmpty()

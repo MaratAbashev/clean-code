@@ -21,8 +21,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\MarkdownWebApi.Application\MarkdownWebApi.Application.csproj" />
-      <ProjectReference Include="..\MarkdownWebApi.Infrastructure\MarkdownWebApi.Infrastructure.csproj" />
+      <ProjectReference Include="..\MarkdownWebApp.Application\MarkdownWebApp.Application.csproj" />
+      <ProjectReference Include="..\MarkdownWebApp.Infrastructure\MarkdownWebApp.Infrastructure.csproj" />
       <ProjectReference Include="..\MarkdownWebApp.DataAccess.Postgres\MarkdownWebApp.DataAccess.Postgres.csproj" />
     </ItemGroup>
 

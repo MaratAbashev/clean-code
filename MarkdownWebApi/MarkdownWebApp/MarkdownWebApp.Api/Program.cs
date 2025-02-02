@@ -5,7 +5,11 @@ using Microsoft.EntityFrameworkCore;
 using FluentValidation;
 using MarkdownWebApi.Application;
 using MarkdownWebApi.Application.Interfaces.Auth;
+using MarkdownWebApi.Application.Interfaces.Repositories;
+using MarkdownWebApi.Application.Validators;
 using MarkdownWebApi.Infrastructure;
+using MarkdownWebApp.Api.Filters;
+using MarkdownWebApp.DataAccess.Postgres.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -22,6 +26,8 @@ builder.Services.AddDbContext<MarkdownDbContext>(
     {
         options.UseNpgsql(builder.Configuration.GetConnectionString("MarkdownDb"));
     });
+
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
 builder.Services.AddAuthentication(
         options =>
     {
@@ -31,12 +37,11 @@ builder.Services.AddAuthentication(
     .AddJwtBearer(
         options =>
         {
-            var jwtConfig = builder.Configuration.GetSection("JwtOptions");
-            var key = Encoding.UTF8.GetBytes(jwtConfig.GetValue<string>("SecretKey") ?? string.Empty);
+            var jwtOptions = builder.Configuration.GetSection("JwtOptions").Get<JwtOptions>();
             options.TokenValidationParameters = new TokenValidationParameters()
             {
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions!.SecretKey)),
                 ValidateLifetime = true,
                 ValidateAudience = false,
                 ValidateIssuer = false,
@@ -55,6 +60,10 @@ builder.Services.AddAuthentication(
         });
 builder.Services.AddScoped<IJwtWorker, JwtWorker>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPasswordHashier, PasswordHashier>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<RegisterValidationFilter>();
+builder.Services.AddScoped<LoginValidationFilter>();
 builder.Services.AddControllers();
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>();
@@ -67,31 +76,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseHttpsRedirection();
+app.MapControllers();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-    {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast")
-    .WithOpenApi();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

@@ -62,7 +62,7 @@ public class Result<T> : Result
         return new Result<T>(error, statusCode);
     }
     
-    public new static Result<T> FromExceptionFromException(Exception exception, int statusCode)
+    public new static Result<T> FromException(Exception exception, int statusCode)
     {
         return Fail(exception.Message, statusCode);
     }

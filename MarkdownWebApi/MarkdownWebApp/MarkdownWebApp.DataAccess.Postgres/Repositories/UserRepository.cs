@@ -1,5 +1,5 @@
 ﻿using MarkdownWebApi.Application.Assistants;
-using MarkdownWebApi.Application.Contracts.Repositories;
+using MarkdownWebApi.Application.Interfaces.Repositories;
 using MarkdownWebApi.Core.Models;
 using MarkdownWebApp.DataAccess.Postgres.Models;
 using Microsoft.EntityFrameworkCore;
@@ -29,21 +29,23 @@ public class UserRepository(MarkdownDbContext context) : IUserRepository
     {
         try
         {
+            if (await context.Users.AnyAsync(u => u.Email == email))
+                return Result.Fail("Email already exists", 409);
             var userEntity = new UserEntity()
             {
                 Id = userId,
                 Email = email,
-                UserName = username
+                UserName = username,
+                Password = password
             };
             context.Users.Add(userEntity);
             await context.SaveChangesAsync();
+            return Result.Ok();
         }
         catch (Exception e)
         {
             return Result.FromException(e, 500);
         }
-
-        return Result.Ok();
 
     }
 

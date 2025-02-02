@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MarkdownWebApp.DataAccess.Postgres.Migrations
 {
     [DbContext(typeof(MarkdownDbContext))]
-    [Migration("20250124182140_initial")]
-    partial class initial
+    [Migration("20250128213106_UpdateUserConfigAndDocumentEntityAccess")]
+    partial class UpdateUserConfigAndDocumentEntityAccess
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -92,6 +92,9 @@ namespace MarkdownWebApp.DataAccess.Postgres.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });

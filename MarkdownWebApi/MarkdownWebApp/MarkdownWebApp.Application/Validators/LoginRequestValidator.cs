@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using MarkdownWebApp.Api.Contracts.Users;
 
-namespace MarkdownWebApi.Application;
+namespace MarkdownWebApi.Application.Validators;
 
 public class LoginRequestValidator: AbstractValidator<LoginUserRequest>
 {

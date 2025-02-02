@@ -21,8 +21,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\MarkdownWebApi.Application\MarkdownWebApi.Application.csproj" />
-      <ProjectReference Include="..\MarkdownWebApi.Core\MarkdownWebApi.Core.csproj" />
+      <ProjectReference Include="..\MarkdownWebApp.Application\MarkdownWebApp.Application.csproj" />
+      <ProjectReference Include="..\MarkdownWebApp.Core\MarkdownWebApp.Core.csproj" />
     </ItemGroup>
 
 </Project>

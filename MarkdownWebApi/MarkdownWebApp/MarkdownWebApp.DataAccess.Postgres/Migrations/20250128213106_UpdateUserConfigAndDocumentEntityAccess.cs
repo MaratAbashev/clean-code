@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MarkdownWebApp.DataAccess.Postgres.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class UpdateUserConfigAndDocumentEntityAccess : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -74,6 +74,12 @@ namespace MarkdownWebApp.DataAccess.Postgres.Migrations
                 name: "IX_DocumentAccesses_UserId",
                 table: "DocumentAccesses",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Email",
+                table: "Users",
+                column: "Email",
+                unique: true);
         }
 
         /// <inheritdoc />

@@ -4,11 +4,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownWebApp.Api", "Markd
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownWebApp.DataAccess.Postgres", "MarkdownWebApp.DataAccess.Postgres\MarkdownWebApp.DataAccess.Postgres.csproj", "{00A093D6-CBB5-430C-B192-8A4D894EA6D0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownWebApi.Infrastructure", "MarkdownWebApi.Infrastructure\MarkdownWebApi.Infrastructure.csproj", "{17F14DB2-C104-41CF-9B10-F8262ABB9482}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownWebApp.Infrastructure", "MarkdownWebApp.Infrastructure\MarkdownWebApp.Infrastructure.csproj", "{17F14DB2-C104-41CF-9B10-F8262ABB9482}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownWebApi.Application", "MarkdownWebApi.Application\MarkdownWebApi.Application.csproj", "{200572F1-6528-41CD-966F-0D096FD97E3A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownWebApp.Application", "MarkdownWebApp.Application\MarkdownWebApp.Application.csproj", "{200572F1-6528-41CD-966F-0D096FD97E3A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownWebApi.Core", "MarkdownWebApi.Core\MarkdownWebApi.Core.csproj", "{CB07C16B-5543-4DD9-8D55-271833A1456E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownWebApp.Core", "MarkdownWebApp.Core\MarkdownWebApp.Core.csproj", "{CB07C16B-5543-4DD9-8D55-271833A1456E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

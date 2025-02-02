@@ -9,16 +9,14 @@ namespace MarkdownWebApp.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class UserController(UserService userService) : ControllerBase
+public class UserController(IUserService userService) : ControllerBase
 {
-    private readonly IUserService _userService = userService;
-
     [HttpPost]
-    [Route("register")]
-    [ValidationFilter(typeof(RegisterRequestValidator))]
+    [Route("/register")]
+    [ServiceFilter(typeof(RegisterValidationFilter))]
     public async Task<IActionResult> Register([FromBody] RegisterUserRequest request)
     {
-        var result = await _userService.Register(request.UserName, request.Email, request.Password);
+        var result = await userService.Register(request.UserName, request.Email, request.Password);
         return ShowActionResult(result);
     }
 
@@ -51,11 +49,11 @@ public class UserController(UserService userService) : ControllerBase
     }
 
     [HttpPost]
-    [Route("login")]
-    [ValidationFilter(typeof(LoginRequestValidator))]
-    public async Task<IActionResult> Login([FromBody] LoginUserRequest request, HttpContext context)
+    [Route("/login")]
+    [ServiceFilter(typeof(LoginValidationFilter))]
+    public async Task<IActionResult> Login([FromBody] LoginUserRequest request)
     {
-        var tokenResult = await _userService.Login(request.Email, request.Password);
+        var tokenResult = await userService.Login(request.Email, request.Password);
         var serializedTokenResult = tokenResult.IsSuccess? 
             Result<object>.Ok(new{token = tokenResult.Value}):
             Result<object>.Fail(tokenResult.Error, tokenResult.StatusCode);

@@ -4,14 +4,15 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <RootNamespace>MarkdownWebApi.Application</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\MarkdownWebApi.Application\MarkdownWebApi.Application.csproj" />
+      <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.3.1" />
+      <ProjectReference Include="..\MarkdownWebApp.Core\MarkdownWebApp.Core.csproj" />
     </ItemGroup>
 
 </Project>

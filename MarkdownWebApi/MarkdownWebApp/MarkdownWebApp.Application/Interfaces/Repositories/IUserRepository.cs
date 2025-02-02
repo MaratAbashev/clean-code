@@ -1,7 +1,7 @@
 ﻿using MarkdownWebApi.Application.Assistants;
 using MarkdownWebApi.Core.Models;
 
-namespace MarkdownWebApi.Application.Contracts.Repositories;
+namespace MarkdownWebApi.Application.Interfaces.Repositories;
 
 public interface IUserRepository
 {

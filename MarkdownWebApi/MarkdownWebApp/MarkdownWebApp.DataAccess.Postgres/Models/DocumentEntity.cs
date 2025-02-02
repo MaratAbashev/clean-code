@@ -12,5 +12,6 @@ public class DocumentEntity
 public enum AccessLevel
 {
     Private,
-    OnLink
+    OnLink,
+    Public
 }

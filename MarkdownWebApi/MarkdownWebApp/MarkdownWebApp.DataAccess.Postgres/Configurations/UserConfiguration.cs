@@ -13,6 +13,10 @@ public class UserConfiguration: IEntityTypeConfiguration<UserEntity>
         builder
             .HasMany(u => u.UserDocuments)
             .WithOne(da => da.User)
-            .HasForeignKey(da => da.UserId);
+            .HasForeignKey(da => da.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder
+            .HasIndex(p => p.Email)
+            .IsUnique();
     }
 }

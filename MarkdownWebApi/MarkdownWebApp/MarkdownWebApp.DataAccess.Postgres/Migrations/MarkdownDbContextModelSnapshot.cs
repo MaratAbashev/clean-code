@@ -90,6 +90,9 @@ namespace MarkdownWebApp.DataAccess.Postgres.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.ToTable("Users");
                 });
 

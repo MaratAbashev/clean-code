@@ -16,6 +16,7 @@ public class DocumentConfiguration: IEntityTypeConfiguration<DocumentEntity>
         builder
             .HasMany(d => d.UserDocuments)
             .WithOne(da => da.Document)
-            .HasForeignKey(d => d.DocumentId);
+            .HasForeignKey(da => da.DocumentId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

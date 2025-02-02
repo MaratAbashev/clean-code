@@ -16,10 +16,12 @@ public class DocumentAccessConfiguration : IEntityTypeConfiguration<DocumentAcce
         builder
             .HasOne(da => da.Document)
             .WithMany(d => d.UserDocuments)
-            .HasForeignKey(da => da.DocumentId);
+            .HasForeignKey(da => da.DocumentId)
+            .OnDelete(DeleteBehavior.Cascade);
         builder
             .HasOne(da => da.User)
             .WithMany(u => u.UserDocuments)
-            .HasForeignKey(da => da.UserId);
+            .HasForeignKey(da => da.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

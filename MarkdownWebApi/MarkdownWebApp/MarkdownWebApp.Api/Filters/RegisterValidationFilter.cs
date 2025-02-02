@@ -1,35 +1,20 @@
 ﻿using FluentValidation;
+using MarkdownWebApi.Application;
+using MarkdownWebApi.Application.Validators;
+using MarkdownWebApp.Api.Contracts.Users;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace MarkdownWebApp.Api.Filters;
 
-public class ValidationFilter: Attribute, IAsyncActionFilter
+public class RegisterValidationFilter(IValidator<RegisterUserRequest> validator) : IAsyncActionFilter
 {
-    private readonly Type _validatorType;
-
-    public ValidationFilter(Type validatorType)
-    {
-        if (!typeof(IValidator).IsAssignableFrom(validatorType))
-        {
-            throw new ArgumentException($"{validatorType} does not implement IValidator");
-        }
-
-        _validatorType = validatorType;
-    }
-
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
-        var parameter = context.ActionArguments.FirstOrDefault().Value;
-        if (parameter == null)
+        if (context.ActionArguments.FirstOrDefault().Value is not RegisterUserRequest parameter)
         {
             context.Result = new BadRequestObjectResult("Model is null.");
-            return;
-        }
-
-        if (context.HttpContext.RequestServices.GetService(_validatorType) is not IValidator validator)
-        {
-            context.Result = new BadRequestObjectResult("Validator not found.");
             return;
         }
 
