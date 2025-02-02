@@ -6,9 +6,13 @@ using FluentValidation;
 using MarkdownWebApi.Application;
 using MarkdownWebApi.Application.Interfaces.Auth;
 using MarkdownWebApi.Application.Interfaces.Repositories;
+using MarkdownWebApi.Application.Interfaces.Services;
+using MarkdownWebApi.Application.Services;
+using MarkdownWebApi.Application.Services.Options;
 using MarkdownWebApi.Application.Validators;
 using MarkdownWebApi.Infrastructure;
 using MarkdownWebApp.Api.Filters;
+using MarkdownWebApp.Api.Filters.UserFilters;
 using MarkdownWebApp.DataAccess.Postgres.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -18,6 +22,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration
     .AddJsonFile("appsettings.Secrets.json", optional: true, reloadOnChange: true);
+builder.Services.Configure<MinioOptions>(builder.Configuration.GetSection(nameof(MinioOptions)));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -60,10 +65,12 @@ builder.Services.AddAuthentication(
         });
 builder.Services.AddScoped<IJwtWorker, JwtWorker>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IMinioService, MinioService>();
 builder.Services.AddScoped<IPasswordHashier, PasswordHashier>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<RegisterValidationFilter>();
 builder.Services.AddScoped<LoginValidationFilter>();
+
 builder.Services.AddControllers();
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>();

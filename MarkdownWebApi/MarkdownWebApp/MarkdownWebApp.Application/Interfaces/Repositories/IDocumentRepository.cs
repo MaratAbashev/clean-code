@@ -9,4 +9,5 @@ public interface IDocumentRepository
     Task<Result<string>> ChangeName(Guid documentId, string newDocumentName);
     Task<Result> DeleteDocument(Guid documentId);
     Task<Result<DocumentModel>> GetDocument(Guid documentId);
+    
 }

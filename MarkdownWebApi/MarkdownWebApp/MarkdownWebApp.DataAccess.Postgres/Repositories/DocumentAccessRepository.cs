@@ -4,6 +4,8 @@ using MarkdownWebApi.Core.Models;
 using MarkdownWebApp.DataAccess.Postgres.Models;
 using Microsoft.EntityFrameworkCore;
 
+
+
 namespace MarkdownWebApp.DataAccess.Postgres.Repositories;
 
 public class DocumentAccessRepository(MarkdownDbContext context) : IDocumentAccessRepository
@@ -15,16 +17,45 @@ public class DocumentAccessRepository(MarkdownDbContext context) : IDocumentAcce
             var documentAccessList = await context.DocumentAccesses
                 .AsNoTracking()
                 .Include(da => da.Document)
-                .Where(da => da.UserId == userId && (da.Role == Role.Creator || da.Document!.AccessLevel != AccessLevel.Private))
+                .Where(da => da.UserId == userId && da.Document!.AccessLevel != AccessLevel.Private)
                 .Select(da => new DocumentAccessModel
                 {
                     UserId = da.UserId,
-                    Role = da.Role.ToString(),
+                    Role = Enum.Parse<RoleModel>(da.Role.ToString()),
                     DocumentName = da.Document!.Name,
                     DocumentId = da.DocumentId,
-                    Users = context.DocumentAccesses.Where(docAcc => da.DocumentId == docAcc.DocumentId).AsNoTracking().Select(u => new UserModel()).ToList()
+                    Users = context.DocumentAccesses
+                        .AsNoTracking()
+                        .Where(docAcc => da.DocumentId == docAcc.DocumentId)
+                        .Include(docAcc => docAcc.User)
+                        .Select(docAcc => new UserModel()
+                        {
+                            Email = docAcc.User!.Email,
+                            Id = docAcc.UserId,
+                            UserName = docAcc.User.UserName
+                        }).ToList()
                 })
                 .ToListAsync();
+            var publicDocuments = await context.Documents
+                .AsNoTracking()
+                .Where(d => d.AccessLevel == AccessLevel.Public)
+                .Include(d => d.UserDocuments)
+                .Select(d => new DocumentAccessModel
+                {
+                    UserId = userId,
+                    Role = RoleModel.Editor,
+                    DocumentName = d.Name,
+                    DocumentId = d.Id,
+                    Users = d.UserDocuments!
+                        .Select(docAcc => new UserModel()
+                        {
+                            Email = docAcc.User!.Email,
+                            Id = docAcc.UserId,
+                            UserName = docAcc.User.UserName
+                        }).ToList()
+                })
+                .ToListAsync();
+            documentAccessList.AddRange(publicDocuments);
             return Result<List<DocumentAccessModel>>.Ok(documentAccessList);
         }
         catch (Exception ex)
@@ -33,84 +64,101 @@ public class DocumentAccessRepository(MarkdownDbContext context) : IDocumentAcce
         }
     }
 
-    public async Task<Result<Guid>> ShareDocument(Guid userId, Guid documentId, bool makePublic)
+    public async Task<Result<DocumentModel>> ChangeDocumentAccess(Guid userId, Guid documentId, AccessLevelModel accessLevelModel) 
     {
         try
         {
             var query = context.DocumentAccesses
                 .Where(da => da.DocumentId == documentId);
             if (!await query.AnyAsync())
-                return Result<Guid>.Fail("Document not found", 404);
+                return Result<DocumentModel>.Fail("Document not found", 404);
             query = query.Where(da => da.UserId == userId);
             if (!await query.AnyAsync())
-                return Result<Guid>.Fail("You have no access to this document", 403);
+                return Result<DocumentModel>.Fail("You have no access to this document", 403);
             query = query.Where(da => da.Role == Role.Creator);
             if (!await query.AnyAsync())
-                return Result<Guid>.Fail("Only creator can share this document", 403);
-            await query
+                return Result<DocumentModel>.Fail("Only creator can change access of this document", 403);
+            var document = await query
                 .Include(da => da.Document)
-                .ExecuteUpdateAsync(s =>
-                    s.SetProperty(da => da.Document!.AccessLevel, makePublic? AccessLevel.Public: AccessLevel.OnLink));
-            return Result<Guid>.Ok(documentId);
+                .Select(da => da.Document)
+                .FirstOrDefaultAsync();
+            var accessLevel = Enum.Parse<AccessLevel>(accessLevelModel.ToString());
+            document!.AccessLevel = accessLevel;
+            await context.SaveChangesAsync();
+            return Result<DocumentModel>.Ok(new DocumentModel
+            {
+                AccessLevel = accessLevelModel,
+                DocumentId = documentId,
+                DocumentName = document.Name,
+            });
         }
         catch (Exception ex)
         {
-            return Result<Guid>.FromException(ex, 500);
+            return Result<DocumentModel>.FromException(ex, 500);
         }
     }
 
-    public async Task<Result<Guid>> AllowAccess(string email, Guid documentId, string role)
+    public async Task<Result<DocumentAccessModel>> AllowAccess(string email, Guid documentId, RoleModel roleModel) //получение доступа юзера к документу (как при переходе по ссылке так и при выдаче автором)
     {
         try
         {
-            if (Enum.TryParse(role, out Role roleEnum))
-                return Result<Guid>.Fail("Invalid role naming", 400);
-            if (roleEnum == Role.Creator)
-                return Result<Guid>.Fail("You can't give a creator role", 400);
+            var role = Enum.Parse<Role>(roleModel.ToString());
+            if (role == Role.Creator)
+                return Result<DocumentAccessModel>.Fail("You can't give a creator role", 400);
             var user = await context.Users.FirstOrDefaultAsync(u => u.Email == email);
             if (user == null)
-                return Result<Guid>.Fail("User not found", 404);
+                return Result<DocumentAccessModel>.Fail("User not found", 404);
             var document = await context.Documents.FindAsync(documentId);
             if (document == null)
-                return Result<Guid>.Fail("Document not found", 404);
+                return Result<DocumentAccessModel>.Fail("Document not found", 404);
             if (document.AccessLevel == AccessLevel.Private)
-                return Result<Guid>.Fail("Firstly share your document", 400);
+                return Result<DocumentAccessModel>.Fail("Document is not shared", 400);
             var existingDocumentAccess = await context.DocumentAccesses.FirstOrDefaultAsync(da => da.DocumentId == documentId && da.UserId == user.Id);
+            var documentAccessModel = new DocumentAccessModel
+            {
+                UserId = user.Id,
+                Role = roleModel,
+                DocumentId = documentId,
+                DocumentName = document.Name
+            };
             if (existingDocumentAccess != null)
             {
-                existingDocumentAccess.Role = roleEnum;
+                existingDocumentAccess.Role = role;
                 await context.SaveChangesAsync();
-                return Result<Guid>.Ok(documentId);
+                return Result<DocumentAccessModel>.Ok(documentAccessModel);
             }
             await context.DocumentAccesses.AddAsync(new DocumentAccess()
             {
                 Id = Guid.NewGuid(),
                 UserId = user.Id,
                 DocumentId = documentId,
-                Role = roleEnum,
+                Role = role,
                 Document = document,
                 User = user
             });
             await context.SaveChangesAsync();
-            return Result<Guid>.Ok(documentId);
+            return Result<DocumentAccessModel>.Ok(documentAccessModel);
         }
         catch (Exception ex)
         {
-            return Result<Guid>.FromException(ex, 500);
+            return Result<DocumentAccessModel>.FromException(ex, 500);
         }
     }
 
-    public async Task<Result<Guid>> CreateDocumentAccess(Guid userId, Guid documentId)
+    public async Task<Result<DocumentAccessModel>> CreateDocumentAccess(Guid userId, Guid documentId) //выдача при создании, проверить может ли автор это делать
     {
         try
         {
             var user = await context.Users.FindAsync(userId);
             if (user == null)
-                return Result<Guid>.Fail("User not found", 404);
+                return Result<DocumentAccessModel>.Fail("User not found", 404);
             var document = await context.Documents.FindAsync(documentId);
             if (document == null)
-                return Result<Guid>.Fail("Document not found", 404);
-            context.DocumentAccesses.Add(new DocumentAccess()
+                return Result<DocumentAccessModel>.Fail("Document not found", 404);
+            var existingDocumentAccess = await context.DocumentAccesses.FirstOrDefaultAsync(da => da.DocumentId == documentId);
+            if (existingDocumentAccess != null)
+                return Result<DocumentAccessModel>.Fail("You already own your document", 409);
+            var documentAccess = new DocumentAccess()
             {
                 Id = Guid.NewGuid(),
                 UserId = user.Id,
@@ -118,21 +166,29 @@ public class DocumentAccessRepository(MarkdownDbContext context) : IDocumentAcce
                 Document = document,
                 Role = Role.Creator,
                 User = user
-            });
+            };
+            context.DocumentAccesses.Add(documentAccess);
             await context.SaveChangesAsync();
-            return Result<Guid>.Ok(document.Id);
+            var documentAccessModel = new DocumentAccessModel()
+            {
+                UserId = user.Id,
+                DocumentId = document.Id,
+                DocumentName = document.Name,
+                Role = Enum.Parse<RoleModel>(documentAccess.Role.ToString()),
+            };
+            return Result<DocumentAccessModel>.Ok(documentAccessModel);
         }
         catch (Exception ex)
         {
-            return Result<Guid>.FromException(ex, 500);
+            return Result<DocumentAccessModel>.FromException(ex, 500);
         }
     }
 
-    public async Task<Result<Guid>> DeleteDocumentAccess(Guid userId, Guid documentId)
+    public async Task<Result<Guid>> DeleteDocumentAccess(string email, Guid documentId) //проверить права
     {
         try
         {
-            var user = await context.Users.FindAsync(userId);
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Email == email);
             if (user == null)
                 return Result<Guid>.Fail("User not found", 404);
             var document = await context.Documents.FindAsync(documentId);
@@ -148,6 +204,30 @@ public class DocumentAccessRepository(MarkdownDbContext context) : IDocumentAcce
             return Result<Guid>.FromException(ex, 500);
         }
     }
-    
+
+    public async Task<Result<RoleModel>> GetUserRole(Guid userId, Guid documentId)
+    {
+        try
+        {
+            var role = (await context.DocumentAccesses
+                .AsNoTracking()
+                .FirstOrDefaultAsync(da => da.DocumentId == documentId && da.UserId == userId))?.Role.ToString();
+            if (role == null)
+            {
+                var documentAccess = (await context.Documents.FindAsync(documentId))?.AccessLevel;
+                return documentAccess == null?
+                    Result<RoleModel>.Fail("Document not found", 404):
+                    documentAccess == AccessLevel.Public?
+                    Result<RoleModel>.Ok(RoleModel.Editor):
+                    Result<RoleModel>.Fail("You dont have access to this document", 403);
+            }
+            
+            return Result<RoleModel>.Ok(Enum.Parse<RoleModel>(role));
+        }
+        catch (Exception ex)
+        {
+            return Result<RoleModel>.FromException(ex, 500);
+        }
+    }
     
 }

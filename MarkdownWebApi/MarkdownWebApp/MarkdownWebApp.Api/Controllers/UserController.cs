@@ -1,8 +1,9 @@
 ﻿using MarkdownWebApi.Application;
 using MarkdownWebApi.Application.Assistants;
+using MarkdownWebApi.Application.Contracts.Users;
 using MarkdownWebApi.Core.Models;
-using MarkdownWebApp.Api.Contracts.Users;
 using MarkdownWebApp.Api.Filters;
+using MarkdownWebApp.Api.Filters.UserFilters;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MarkdownWebApp.Api.Controllers;

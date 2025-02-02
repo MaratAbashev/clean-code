@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
+using MarkdownWebApi.Application.Contracts.Users;
 using MarkdownWebApi.Application.Interfaces.Repositories;
-using MarkdownWebApp.Api.Contracts.Users;
 
 namespace MarkdownWebApi.Application.Validators;
 

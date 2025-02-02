@@ -1,6 +1,4 @@
-﻿using System.Data.Common;
-using System.Reflection.Metadata;
-using MarkdownWebApi.Application.Assistants;
+﻿using MarkdownWebApi.Application.Assistants;
 using MarkdownWebApi.Application.Interfaces.Repositories;
 using MarkdownWebApi.Core.Models;
 using MarkdownWebApp.DataAccess.Postgres.Models;
@@ -77,7 +75,7 @@ public class DocumentRepository(MarkdownDbContext context) : IDocumentRepository
             {
                 DocumentId = document.Id,
                 DocumentName = document.Name,
-                AccessLevel = document.AccessLevel.ToString(),
+                AccessLevel = Enum.Parse<AccessLevelModel>(document.AccessLevel.ToString())
             };
             return Result<DocumentModel>.Ok(documentModel);
         }

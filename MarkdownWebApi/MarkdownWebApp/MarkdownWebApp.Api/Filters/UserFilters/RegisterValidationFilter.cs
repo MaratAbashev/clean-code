@@ -1,23 +1,21 @@
 ﻿using FluentValidation;
-using MarkdownWebApi.Application;
-using MarkdownWebApi.Application.Validators;
-using MarkdownWebApp.Api.Contracts.Users;
+using MarkdownWebApi.Application.Contracts.Users;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace MarkdownWebApp.Api.Filters;
+namespace MarkdownWebApp.Api.Filters.UserFilters;
 
-public class LoginValidationFilter(IValidator<LoginUserRequest> validator) : IAsyncActionFilter
+public class RegisterValidationFilter(IValidator<RegisterUserRequest> validator) : IAsyncActionFilter
 {
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
-        if (context.ActionArguments.FirstOrDefault().Value is not LoginUserRequest parameter)
+        if (context.ActionArguments.FirstOrDefault().Value is not RegisterUserRequest parameter)
         {
             context.Result = new BadRequestObjectResult("Model is null.");
             return;
         }
 
-        var validationContext = new ValidationContext<LoginUserRequest>(parameter);
+        var validationContext = new ValidationContext<object>(parameter);
         var validationResult = await validator.ValidateAsync(validationContext);
 
         if (!validationResult.IsValid)

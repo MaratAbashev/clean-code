@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using MarkdownWebApp.Api.Contracts.Users;
+using MarkdownWebApi.Application.Contracts.Users;
 
 namespace MarkdownWebApi.Application.Validators;
 
