@@ -79,9 +79,9 @@ public class DocumentController(IDocumentService documentService): ControllerBas
         return this.ShowActionResult(documentDtoResult);
     }
 
-    [HttpPost("/{documentId:guid}/download")]
+    [HttpPost("/{documentId:guid}/download/html")]
     [ServiceFilter(typeof(GetDocumentFilter))]
-    public async Task<IActionResult> DownloadDocument([FromRoute] Guid documentId, [FromServices] IMinioService minioService)
+    public async Task<IActionResult> DownloadHtmlDocument([FromRoute] Guid documentId, [FromServices] IMinioService minioService)
     {
         var getDocumentResult = await documentService.GetDocument(documentId);
         if (!getDocumentResult.IsSuccess)
@@ -92,14 +92,20 @@ public class DocumentController(IDocumentService documentService): ControllerBas
         var getParsedDocumentContentResult = await documentService.GetHtmlText(getDocumentResult.Value!.DocumentId, getDocumentContentResult.Value!);
         if (!getParsedDocumentContentResult.IsSuccess)
             return this.ShowActionResult(getParsedDocumentContentResult);
-        var memoryStream = new MemoryStream(); //тут очевидная утечка памяти от которой непонятно как избавиться, использование using или try finally c dispose выдает ошибку как будто мы закрываем поток до return хотя это не так
-        await using (var streamWriter = new StreamWriter(memoryStream, Encoding.UTF8, bufferSize: 1024, leaveOpen: true))
-        {
-            await streamWriter.WriteAsync(getParsedDocumentContentResult.Value);
-            await streamWriter.FlushAsync();
-        }
-        memoryStream.Position = 0;
         
-        return File(memoryStream, "text/html", $"{getDocumentResult.Value!.DocumentName}.html");
+        return File(Encoding.UTF8.GetBytes(getParsedDocumentContentResult.Value!), "text/html", $"{getDocumentResult.Value!.DocumentName}.html");
+    }
+    
+    [HttpPost("/{documentId:guid}/download/md")]
+    [ServiceFilter(typeof(GetDocumentFilter))]
+    public async Task<IActionResult> DownloadMdDocument([FromRoute] Guid documentId, [FromServices] IMinioService minioService)
+    {
+        var getDocumentResult = await documentService.GetDocument(documentId);
+        if (!getDocumentResult.IsSuccess)
+            return this.ShowActionResult(getDocumentResult);
+        var getDocumentContentResult = await minioService.PullDocument(documentId);
+        if (!getDocumentContentResult.IsSuccess)
+            return this.ShowActionResult(getDocumentContentResult);
+        return File(Encoding.UTF8.GetBytes(getDocumentContentResult.Value!), "text/plain", $"{getDocumentResult.Value!.DocumentName}.html");
     }
 }
