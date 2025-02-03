@@ -66,7 +66,7 @@ public class DocumentController(IDocumentService documentService): ControllerBas
         var parseResult = await documentService.GetHtmlText(documentId, editDocumentRequest.Content);
         if (!parseResult.IsSuccess)
             return this.ShowActionResult(parseResult);
-        var pushResult = await minioService.PushDocument(documentId, parseResult.Value!);
+        var pushResult = await minioService.PushDocument(documentId, editDocumentRequest.Content!);
         if (!pushResult.IsSuccess)
             return this.ShowActionResult(pushResult);
         var documentDtoResult = Result<DocumentContentDto>.Ok(new DocumentContentDto
