@@ -10,4 +10,5 @@ public interface IDocumentAccessService
     Task<Result<DocumentAccessModel>> CreateDocument(Guid userId, string documentName);
     Task<Result<Guid>> DeleteDocumentAccess(string email, Guid documentId);
     Task<Result<DocumentAccessModel>> AllowAccess(string email, Guid documentId, RoleModel role);
+    Task<Result<DocumentAccessModel>> JoinByLink(Guid userId, Guid documentId);
 }

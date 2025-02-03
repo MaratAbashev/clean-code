@@ -7,11 +7,11 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace MarkdownWebApp.Api.Filters.AccessFilters;
 
-public class CreatorAccessFilter(IDocumentAccessRepository documentAccessRepository): IAsyncActionFilter
+public class AllowAccessFilter(IDocumentAccessRepository documentAccessRepository): IAsyncActionFilter
 {
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
-        if (context.ActionArguments.FirstOrDefault().Value is not GiveAccessRequest parameter)
+        if (context.ActionArguments.FirstOrDefault().Value is not AllowAccessRequest parameter)
         {
             context.Result = new BadRequestObjectResult("Model is null.");
             return;
@@ -27,7 +27,7 @@ public class CreatorAccessFilter(IDocumentAccessRepository documentAccessReposit
 
         if ((int)documentAccessesResult.Value > (int)RoleModel.Creator)
         {
-            context.Result = new BadRequestObjectResult("You do not have permission to give access to this document.");
+            context.Result = new BadRequestObjectResult("You do not have permission to allow access to this document.");
             return;
         }
         await next();

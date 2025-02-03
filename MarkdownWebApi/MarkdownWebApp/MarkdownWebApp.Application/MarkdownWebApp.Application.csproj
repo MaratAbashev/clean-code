@@ -13,6 +13,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\MarkdownProcessorLib\MarkdownProcessorLib\MarkdownProcessorLib.csproj" />
       <ProjectReference Include="..\MarkdownWebApp.Core\MarkdownWebApp.Core.csproj" />
     </ItemGroup>
 

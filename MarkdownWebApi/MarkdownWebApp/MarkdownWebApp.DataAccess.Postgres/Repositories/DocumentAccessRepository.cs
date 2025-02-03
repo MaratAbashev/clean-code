@@ -98,7 +98,7 @@ public class DocumentAccessRepository(MarkdownDbContext context) : IDocumentAcce
         }
     }
 
-    public async Task<Result<DocumentAccessModel>> AllowAccess(string email, Guid documentId, RoleModel roleModel) //получение доступа юзера к документу (как при переходе по ссылке так и при выдаче автором)
+    public async Task<Result<DocumentAccessModel>> ControlAccess(string email, Guid documentId, RoleModel roleModel) //получение доступа юзера к документу (как при переходе по ссылке так и при выдаче автором)
     {
         try
         {
@@ -133,6 +133,55 @@ public class DocumentAccessRepository(MarkdownDbContext context) : IDocumentAcce
                 UserId = user.Id,
                 DocumentId = documentId,
                 Role = role,
+                Document = document,
+                User = user
+            });
+            await context.SaveChangesAsync();
+            return Result<DocumentAccessModel>.Ok(documentAccessModel);
+        }
+        catch (Exception ex)
+        {
+            return Result<DocumentAccessModel>.FromException(ex, 500);
+        }
+    }
+
+    public async Task<Result<DocumentAccessModel>> JoinByLink(Guid userId, Guid documentId)
+    {
+        try
+        {
+            var user = await context.Users.FindAsync(userId);
+            if (user == null)
+                return Result<DocumentAccessModel>.Fail("User not found", 404);
+            var document = await context.Documents.FindAsync(documentId);
+            if (document == null)
+                return Result<DocumentAccessModel>.Fail("Document not found", 404);
+            if (document.AccessLevel == AccessLevel.Private)
+                return Result<DocumentAccessModel>.Fail("Document is not shared", 400);
+            var existingDocumentAccess = await context.DocumentAccesses.FirstOrDefaultAsync(da => da.DocumentId == documentId && da.UserId == user.Id);
+            var documentAccessModel = new DocumentAccessModel
+            {
+                UserId = user.Id,
+                Role = RoleModel.Editor,
+                DocumentId = documentId,
+                DocumentName = document.Name
+            };
+            if (existingDocumentAccess != null)
+            {
+                documentAccessModel = new DocumentAccessModel
+                {
+                    UserId = user.Id,
+                    Role = Enum.Parse<RoleModel>(existingDocumentAccess.Role.ToString()),
+                    DocumentId = documentId,
+                    DocumentName = document.Name
+                };
+                return Result<DocumentAccessModel>.Ok(documentAccessModel);
+            }
+            await context.DocumentAccesses.AddAsync(new DocumentAccess()
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                DocumentId = documentId,
+                Role = Role.Editor,
                 Document = document,
                 User = user
             });

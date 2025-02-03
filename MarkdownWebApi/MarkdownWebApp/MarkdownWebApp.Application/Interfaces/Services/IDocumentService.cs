@@ -9,4 +9,5 @@ public interface IDocumentService
     Task<Result<string>> ChangeName(Guid documentId, string newDocumentName);
     Task<Result> DeleteDocument(Guid documentId);
     Task<Result<Guid>> CreateDocument(string documentName);
+    Task<Result<string>> GetHtmlText(Guid documentId, string markdownText);
 }

@@ -2,6 +2,7 @@
 using MarkdownWebApi.Application.Assistants;
 using MarkdownWebApi.Application.Contracts.Users;
 using MarkdownWebApi.Core.Models;
+using MarkdownWebApp.Api.Controllers.Handlers;
 using MarkdownWebApp.Api.Filters;
 using MarkdownWebApp.Api.Filters.UserFilters;
 using Microsoft.AspNetCore.Mvc;
@@ -18,35 +19,7 @@ public class UserController(IUserService userService) : ControllerBase
     public async Task<IActionResult> Register([FromBody] RegisterUserRequest request)
     {
         var result = await userService.Register(request.UserName, request.Email, request.Password);
-        return ShowActionResult(result);
-    }
-
-    private IActionResult ShowActionResult(Result result)
-    {
-        return result.StatusCode switch
-        {
-            0 => Ok(),
-            200 => Ok(),
-            400 => BadRequest(result.Error),
-            401 => Unauthorized(result.Error),
-            403 => Forbid(result.Error),
-            404 => NotFound(result.Error),
-            _ => StatusCode(result.StatusCode, result.Error)
-        };
-    }
-    
-    private IActionResult ShowActionResult<T>(Result<T> result)
-    {
-        return result.StatusCode switch
-        {
-            0 => Ok(result.Value),
-            200 => Ok(result.Value),
-            400 => BadRequest(result.Error),
-            401 => Unauthorized(result.Error),
-            403 => Forbid(result.Error),
-            404 => NotFound(result.Error),
-            _ => StatusCode(result.StatusCode, result.Error)
-        };
+        return this.ShowActionResult(result);
     }
 
     [HttpPost]
@@ -58,6 +31,6 @@ public class UserController(IUserService userService) : ControllerBase
         var serializedTokenResult = tokenResult.IsSuccess? 
             Result<object>.Ok(new{token = tokenResult.Value}):
             Result<object>.Fail(tokenResult.Error, tokenResult.StatusCode);
-        return ShowActionResult<object>(serializedTokenResult);
+        return this.ShowActionResult(serializedTokenResult);
     }
 }

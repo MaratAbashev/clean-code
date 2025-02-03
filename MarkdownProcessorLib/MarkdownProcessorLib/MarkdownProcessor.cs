@@ -4,17 +4,10 @@ namespace MarkdownProcessorLib;
 
 public class MarkdownProcessor
 {
-    public IHTMLManager _manager;
-    public IParser _parser;
+    private readonly IParser _parser = new Parser();
 
-    public MarkdownProcessor()
+    public string Process(string input)
     {
-        _manager = new HTMLManager();
-        _parser = new Parser();
-    }
-
-    public void Process(string input)
-    {
-        _manager.CreateHTML(_parser.ParseToHTML(input));
+        return _parser.ParseToHTML(input);
     }
 }

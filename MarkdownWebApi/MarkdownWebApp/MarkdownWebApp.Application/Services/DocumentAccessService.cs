@@ -32,6 +32,11 @@ public class DocumentAccessService(IDocumentAccessRepository documentAccessRepos
 
     public async Task<Result<DocumentAccessModel>> AllowAccess(string email, Guid documentId, RoleModel role)
     {
-        return await documentAccessRepository.AllowAccess(email, documentId, role);
+        return await documentAccessRepository.ControlAccess(email, documentId, role);
+    }
+
+    public async Task<Result<DocumentAccessModel>> JoinByLink(Guid userId, Guid documentId)
+    {
+        return await documentAccessRepository.JoinByLink(userId, documentId);
     }
 }

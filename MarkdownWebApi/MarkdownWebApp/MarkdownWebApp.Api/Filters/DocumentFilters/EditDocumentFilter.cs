@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using MarkdownWebApi.Application.Contracts.Accesses;
+using MarkdownWebApi.Application.Contracts.Documents;
 using MarkdownWebApi.Application.Interfaces.Repositories;
 using MarkdownWebApi.Core.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -7,18 +8,18 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace MarkdownWebApp.Api.Filters.DocumentFilters;
 
-public class EditorAccessFilter(IDocumentAccessRepository documentAccessRepository): IAsyncActionFilter
+public class EditDocumentFilter(IDocumentAccessRepository documentAccessRepository): IAsyncActionFilter
 {
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
-        if (context.ActionArguments.FirstOrDefault().Value is not GetDocumentAccessRequest parameter)
+        if (context.ActionArguments.FirstOrDefault().Value is not Guid parameter)
         {
             context.Result = new BadRequestObjectResult("Model is null.");
             return;
         }
         var userId = Guid.Parse(context.HttpContext.User.Claims.FirstOrDefault(c => 
             c.Type == ClaimTypes.NameIdentifier)?.Value!);
-        var documentAccessesResult = await documentAccessRepository.GetUserRole(userId, parameter.DocumentId);
+        var documentAccessesResult = await documentAccessRepository.GetUserRole(userId, parameter);
         if (!documentAccessesResult.IsSuccess)
         {
             context.Result = new StatusCodeResult(documentAccessesResult.StatusCode);
@@ -27,7 +28,7 @@ public class EditorAccessFilter(IDocumentAccessRepository documentAccessReposito
 
         if ((int)documentAccessesResult.Value > (int)RoleModel.Editor)
         {
-            context.Result = new BadRequestObjectResult("You do not have permission to access this document.");
+            context.Result = new BadRequestObjectResult("You do not have permission to edit this document.");
             return;
         }
         await next();

@@ -5,7 +5,7 @@ using MarkdownWebApi.Core.Models;
 
 namespace MarkdownWebApi.Application.Services;
 
-public class DocumentService(IDocumentRepository documentRepository, IMinioService minioService) : IDocumentService
+public class DocumentService(IDocumentRepository documentRepository, IMinioService minioService, IMarkdownService markdownService) : IDocumentService
 {
     public async Task<Result<DocumentModel>> GetDocument(Guid documentId)
     {
@@ -48,5 +48,13 @@ public class DocumentService(IDocumentRepository documentRepository, IMinioServi
         {
             return Result<Guid>.FromException(ex, 500);
         }
+    }
+
+    public async Task<Result<string>> GetHtmlText(Guid documentId, string markdownText)
+    {
+        var documentResult = await documentRepository.GetDocument(documentId);
+        if (!documentResult.IsSuccess)
+            return Result<string>.Fail(documentResult.Error, documentResult.StatusCode);
+        return await markdownService.ParseText(markdownText);
     }
 }

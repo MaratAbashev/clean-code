@@ -26,8 +26,4 @@
       <ProjectReference Include="..\MarkdownWebApp.DataAccess.Postgres\MarkdownWebApp.DataAccess.Postgres.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Extensions\" />
-    </ItemGroup>
-
 </Project>
