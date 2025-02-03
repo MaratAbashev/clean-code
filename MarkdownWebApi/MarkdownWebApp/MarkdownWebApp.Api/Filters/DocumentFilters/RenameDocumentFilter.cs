@@ -1,6 +1,34 @@
-﻿namespace MarkdownWebApp.Api.Filters.DocumentFilters;
+﻿using System.Security.Claims;
+using MarkdownWebApi.Application.Interfaces.Repositories;
+using MarkdownWebApi.Core.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
-public class RenameDocumentFilter
+namespace MarkdownWebApp.Api.Filters.DocumentFilters;
+
+public class RenameDocumentFilter(IDocumentAccessRepository documentAccessRepository): IAsyncActionFilter
 {
-    
+    public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+    {
+        if (context.ActionArguments.FirstOrDefault().Value is not Guid parameter)
+        {
+            context.Result = new BadRequestObjectResult("Model is null.");
+            return;
+        }
+        var userId = Guid.Parse(context.HttpContext.User.Claims.FirstOrDefault(c => 
+            c.Type == ClaimTypes.NameIdentifier)?.Value!);
+        var documentAccessesResult = await documentAccessRepository.GetUserRole(userId, parameter);
+        if (!documentAccessesResult.IsSuccess)
+        {
+            context.Result = new StatusCodeResult(documentAccessesResult.StatusCode);
+            return;
+        }
+
+        if ((int)documentAccessesResult.Value > (int)RoleModel.Watcher)
+        {
+            context.Result = new BadRequestObjectResult("You do not have permission to access this document.");
+            return;
+        }
+        await next();
+    }
 }

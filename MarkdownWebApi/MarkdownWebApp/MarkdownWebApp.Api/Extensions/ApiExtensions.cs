@@ -69,6 +69,15 @@ public static class ApiExtensions
                         RequireExpirationTime = true,
                         RequireSignedTokens = true,
                     };
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            context.Token = context.Request.Cookies["tasty-cookies"];
+
+                            return Task.CompletedTask;
+                        }
+                    };
                 });
     }
 }

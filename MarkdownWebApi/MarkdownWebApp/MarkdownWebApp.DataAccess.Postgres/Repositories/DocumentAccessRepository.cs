@@ -17,25 +17,26 @@ public class DocumentAccessRepository(MarkdownDbContext context) : IDocumentAcce
             var documentAccessList = await context.DocumentAccesses
                 .AsNoTracking()
                 .Include(da => da.Document)
-                .Where(da => da.UserId == userId && da.Document!.AccessLevel != AccessLevel.Private)
-                .Select(da => new DocumentAccessModel
-                {
-                    UserId = da.UserId,
-                    Role = Enum.Parse<RoleModel>(da.Role.ToString()),
-                    DocumentName = da.Document!.Name,
-                    DocumentId = da.DocumentId,
-                    Users = context.DocumentAccesses
-                        .AsNoTracking()
-                        .Where(docAcc => da.DocumentId == docAcc.DocumentId)
-                        .Include(docAcc => docAcc.User)
-                        .Select(docAcc => new UserModel()
-                        {
-                            Email = docAcc.User!.Email,
-                            Id = docAcc.UserId,
-                            UserName = docAcc.User.UserName
-                        }).ToList()
-                })
-                .ToListAsync();
+                .Where(da => da.UserId == userId &&
+                             (da.Role == Role.Creator ||
+                              (da.Role != Role.Creator && da.Document!.AccessLevel != AccessLevel.Private)))
+                                 .Select(da => new DocumentAccessModel
+                                 {
+                                     UserId = da.UserId,
+                                     Role = Enum.Parse<RoleModel>(da.Role.ToString()),
+                                     DocumentName = da.Document!.Name,
+                                     DocumentId = da.DocumentId,
+                                     Users = context.DocumentAccesses
+                                         .Where(docAcc => da.DocumentId == docAcc.DocumentId)
+                                         .Include(docAcc => docAcc.User)
+                                         .Select(docAcc => new UserModel()
+                                         {
+                                             Email = docAcc.User!.Email,
+                                             Id = docAcc.UserId,
+                                             UserName = docAcc.User.UserName
+                                         }).ToList()
+                                 })
+                                 .ToListAsync();
             var publicDocuments = await context.Documents
                 .AsNoTracking()
                 .Where(d => d.AccessLevel == AccessLevel.Public)
@@ -155,8 +156,6 @@ public class DocumentAccessRepository(MarkdownDbContext context) : IDocumentAcce
             var document = await context.Documents.FindAsync(documentId);
             if (document == null)
                 return Result<DocumentAccessModel>.Fail("Document not found", 404);
-            if (document.AccessLevel == AccessLevel.Private)
-                return Result<DocumentAccessModel>.Fail("Document is not shared", 400);
             var existingDocumentAccess = await context.DocumentAccesses.FirstOrDefaultAsync(da => da.DocumentId == documentId && da.UserId == user.Id);
             var documentAccessModel = new DocumentAccessModel
             {
@@ -176,6 +175,8 @@ public class DocumentAccessRepository(MarkdownDbContext context) : IDocumentAcce
                 };
                 return Result<DocumentAccessModel>.Ok(documentAccessModel);
             }
+            if (document.AccessLevel == AccessLevel.Private)
+                return Result<DocumentAccessModel>.Fail("Document is not shared", 400);
             await context.DocumentAccesses.AddAsync(new DocumentAccess()
             {
                 Id = Guid.NewGuid(),
@@ -243,6 +244,9 @@ public class DocumentAccessRepository(MarkdownDbContext context) : IDocumentAcce
             var document = await context.Documents.FindAsync(documentId);
             if (document == null)
                 return Result<Guid>.Fail("Document not found", 404);
+            var documentAccess = await context.DocumentAccesses.FirstOrDefaultAsync(da => da.DocumentId == documentId);
+            if (documentAccess != null && documentAccess.Role == Role.Creator)
+                return Result<Guid>.Fail("You cant remove yourself from users of this document because you are creator", 400);
             await context.DocumentAccesses
                 .Where(da => da.DocumentId == documentId && da.UserId == user.Id)
                 .ExecuteDeleteAsync();

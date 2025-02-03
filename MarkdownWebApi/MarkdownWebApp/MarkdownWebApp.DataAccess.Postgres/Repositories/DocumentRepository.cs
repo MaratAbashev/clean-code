@@ -16,8 +16,7 @@ public class DocumentRepository(MarkdownDbContext context) : IDocumentRepository
             var document = new DocumentEntity
             {
                 Id = id,
-                Name = documentName,
-                Path = $"{documentName}_{id}"
+                Name = documentName
             };
             await context.Documents.AddAsync(document);
             await context.SaveChangesAsync();

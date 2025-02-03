@@ -17,7 +17,7 @@ namespace MarkdownWebApp.Api.Controllers;
 [Authorize]
 public class DocumentController(IDocumentService documentService): ControllerBase
 {
-    [HttpGet("/{id:guid}")]
+    [HttpGet("/{documentId:guid}")]
     [ServiceFilter(typeof(GetDocumentFilter))]
     public async Task<IActionResult> GetDocument([FromRoute] Guid documentId, [FromServices] IDocumentAccessService documentAccessService, [FromServices] IDocumentService documentService, [FromServices] IMinioService minioService)
     {
@@ -40,7 +40,7 @@ public class DocumentController(IDocumentService documentService): ControllerBas
         return this.ShowActionResult(documentDtoResult);
     }
 
-    [HttpDelete("/{id:guid}")]
+    [HttpDelete("/{documentId:guid}")]
     [ServiceFilter(typeof(DeleteDocumentFilter))]
     public async Task<IActionResult> DeleteDocument([FromRoute] Guid documentId)
     {
@@ -48,7 +48,7 @@ public class DocumentController(IDocumentService documentService): ControllerBas
         return this.ShowActionResult(deleteDocumentResult);
     }
 
-    [HttpPost("/{id:guid}/rename/{newDocumentName}")]
+    [HttpPost("/{documentId:guid}/rename/{newDocumentName}")]
     [ServiceFilter(typeof(RenameDocumentFilter))]
     public async Task<IActionResult> RenameDocument([FromRoute] Guid documentId, [FromRoute] string newDocumentName)
     {
@@ -56,7 +56,7 @@ public class DocumentController(IDocumentService documentService): ControllerBas
         return this.ShowActionResult(renameDocumentResult);
     }
 
-    [HttpPost("/{id:guid}/edit")]
+    [HttpPost("/{documentId:guid}/edit")]
     [ServiceFilter(typeof(EditDocumentFilter))]
     public async Task<IActionResult> EditDocument([FromRoute] Guid documentId, [FromBody] EditDocumentRequest editDocumentRequest, [FromServices] IMinioService minioService)
     {

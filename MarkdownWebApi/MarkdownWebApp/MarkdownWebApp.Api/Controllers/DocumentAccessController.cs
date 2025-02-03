@@ -26,14 +26,20 @@ public class DocumentAccessController(IDocumentAccessService documentAccessServi
     }
 
     [HttpPost("/documents/create")]
-    public async Task<IActionResult> CreateDocument([FromBody] CreateDocumentRequest request)
+    public async Task<IActionResult> CreateDocument([FromBody] CreateDocumentRequest request, [FromServices] IMinioService minioService)
     {
         var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
         var documentResult = await documentAccessService.CreateDocument(userId, request.DocumentName);
+        if (!documentResult.IsSuccess)
+            return this.ShowActionResult(documentResult);
+        var documentFileCreate = await minioService.CreateDocument(documentResult.Value!.DocumentId);
+        if (!documentFileCreate.IsSuccess)
+            return this.ShowActionResult(documentFileCreate);
         return this.ShowActionResult(documentResult);
+        
     }
 
-    [HttpDelete("/documents/delete/")]
+    [HttpDelete("/documents/access/delete/")]
     [ServiceFilter(typeof(DeleteAccessFilter))]
     public async Task<IActionResult> DeleteDocumentAccess([FromBody] DeleteDocumentAccessRequest request)
     {

@@ -31,6 +31,7 @@ public class UserController(IUserService userService) : ControllerBase
         var serializedTokenResult = tokenResult.IsSuccess? 
             Result<object>.Ok(new{token = tokenResult.Value}):
             Result<object>.Fail(tokenResult.Error, tokenResult.StatusCode);
+        HttpContext.Response.Cookies.Append("tasty-cookies", tokenResult.Value!);
         return this.ShowActionResult(serializedTokenResult);
     }
 }

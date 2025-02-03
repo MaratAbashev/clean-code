@@ -19,7 +19,7 @@ public class JwtWorker(IOptions<JwtOptions> options) : IJwtWorker
 
         var claims = new[]
         {
-            new Claim(ClaimsIdentity.DefaultNameClaimType, user.Id.ToString())
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
         };
 
         var token = new JwtSecurityToken(
