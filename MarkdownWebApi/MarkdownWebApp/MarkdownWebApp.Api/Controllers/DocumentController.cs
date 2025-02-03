@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using System.Text;
 using MarkdownWebApi.Application;
 using MarkdownWebApi.Application.Assistants;
 using MarkdownWebApi.Application.Contracts.Documents;
@@ -19,7 +20,7 @@ public class DocumentController(IDocumentService documentService): ControllerBas
 {
     [HttpGet("/{documentId:guid}")]
     [ServiceFilter(typeof(GetDocumentFilter))]
-    public async Task<IActionResult> GetDocument([FromRoute] Guid documentId, [FromServices] IDocumentAccessService documentAccessService, [FromServices] IDocumentService documentService, [FromServices] IMinioService minioService)
+    public async Task<IActionResult> GetDocument([FromRoute] Guid documentId, [FromServices] IDocumentAccessService documentAccessService, [FromServices] IMinioService minioService)
     {
         var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
         var getDocumentResult = await documentAccessService.JoinByLink(userId, documentId);
@@ -76,5 +77,29 @@ public class DocumentController(IDocumentService documentService): ControllerBas
             Text = editDocumentRequest.Content
         });
         return this.ShowActionResult(documentDtoResult);
+    }
+
+    [HttpPost("/{documentId:guid}/download")]
+    [ServiceFilter(typeof(GetDocumentFilter))]
+    public async Task<IActionResult> DownloadDocument([FromRoute] Guid documentId, [FromServices] IMinioService minioService)
+    {
+        var getDocumentResult = await documentService.GetDocument(documentId);
+        if (!getDocumentResult.IsSuccess)
+            return this.ShowActionResult(getDocumentResult);
+        var getDocumentContentResult = await minioService.PullDocument(documentId);
+        if (!getDocumentContentResult.IsSuccess)
+            return this.ShowActionResult(getDocumentContentResult);
+        var getParsedDocumentContentResult = await documentService.GetHtmlText(getDocumentResult.Value!.DocumentId, getDocumentContentResult.Value!);
+        if (!getParsedDocumentContentResult.IsSuccess)
+            return this.ShowActionResult(getParsedDocumentContentResult);
+        var memoryStream = new MemoryStream(); //тут очевидная утечка памяти от которой непонятно как избавиться, использование using или try finally c dispose выдает ошибку как будто мы закрываем поток до return хотя это не так
+        await using (var streamWriter = new StreamWriter(memoryStream, Encoding.UTF8, bufferSize: 1024, leaveOpen: true))
+        {
+            await streamWriter.WriteAsync(getParsedDocumentContentResult.Value);
+            await streamWriter.FlushAsync();
+        }
+        memoryStream.Position = 0;
+        
+        return File(memoryStream, "text/html", $"{getDocumentResult.Value!.DocumentName}.html");
     }
 }
