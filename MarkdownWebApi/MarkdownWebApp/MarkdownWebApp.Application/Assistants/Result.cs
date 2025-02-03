@@ -43,7 +43,7 @@ public class Result<T> : Result
 {
     public T? Value { get; }
 
-    private Result(T value) : base()
+    private Result(T value)
     {
         Value = value;
     }

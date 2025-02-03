@@ -1,6 +1,6 @@
 ﻿using MarkdownWebApi.Application.Assistants;
 
-namespace MarkdownWebApi.Application;
+namespace MarkdownWebApi.Application.Interfaces.Services;
 
 public interface IUserService
 {

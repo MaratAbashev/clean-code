@@ -1,6 +1,4 @@
 ﻿using System.Security.Claims;
-using MarkdownWebApi.Application.Contracts.Accesses;
-using MarkdownWebApi.Application.Contracts.Documents;
 using MarkdownWebApi.Application.Interfaces.Repositories;
 using MarkdownWebApi.Core.Models;
 using Microsoft.AspNetCore.Mvc;

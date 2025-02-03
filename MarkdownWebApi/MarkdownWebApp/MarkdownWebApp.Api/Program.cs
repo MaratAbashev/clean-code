@@ -1,25 +1,12 @@
-using System.Security.Claims;
-using System.Text;
 using MarkdownWebApp.DataAccess.Postgres;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
-using MarkdownWebApi.Application;
 using MarkdownWebApi.Application.Interfaces.Auth;
-using MarkdownWebApi.Application.Interfaces.Repositories;
-using MarkdownWebApi.Application.Interfaces.Services;
-using MarkdownWebApi.Application.Services;
 using MarkdownWebApi.Application.Services.Options;
 using MarkdownWebApi.Application.Validators;
 using MarkdownWebApi.Infrastructure;
 using MarkdownWebApp.Api.Extensions;
-using MarkdownWebApp.Api.Filters;
-using MarkdownWebApp.Api.Filters.AccessFilters;
-using MarkdownWebApp.Api.Filters.DocumentFilters;
-using MarkdownWebApp.Api.Filters.UserFilters;
-using MarkdownWebApp.DataAccess.Postgres.Repositories;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.CookiePolicy;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 
@@ -58,7 +45,7 @@ builder.Services.AddSwaggerGen(c =>
             Array.Empty<string>()
         }
     });
-});;
+});
 
 builder.Services.AddDbContext<MarkdownDbContext>(
     options =>

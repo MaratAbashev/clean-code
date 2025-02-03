@@ -1,13 +1,11 @@
 ﻿using System.Security.Claims;
 using System.Text;
-using MarkdownWebApi.Application;
 using MarkdownWebApi.Application.Assistants;
 using MarkdownWebApi.Application.Contracts.Documents;
 using MarkdownWebApi.Application.Dto;
 using MarkdownWebApi.Application.Interfaces.Services;
 using MarkdownWebApp.Api.Controllers.Handlers;
 using MarkdownWebApp.Api.Filters.DocumentFilters;
-using MarkdownWebApp.DataAccess.Postgres.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -67,7 +65,7 @@ public class DocumentController(IDocumentService documentService): ControllerBas
         var parseResult = await documentService.GetHtmlText(documentId, editDocumentRequest.Content);
         if (!parseResult.IsSuccess)
             return this.ShowActionResult(parseResult);
-        var pushResult = await minioService.PushDocument(documentId, editDocumentRequest.Content!);
+        var pushResult = await minioService.PushDocument(documentId, editDocumentRequest.Content);
         if (!pushResult.IsSuccess)
             return this.ShowActionResult(pushResult);
         var documentDtoResult = Result<DocumentContentDto>.Ok(new DocumentContentDto

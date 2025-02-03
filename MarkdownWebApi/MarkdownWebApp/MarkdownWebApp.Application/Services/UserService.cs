@@ -1,6 +1,7 @@
 ﻿using MarkdownWebApi.Application.Assistants;
 using MarkdownWebApi.Application.Interfaces.Auth;
 using MarkdownWebApi.Application.Interfaces.Repositories;
+using MarkdownWebApi.Application.Interfaces.Services;
 
 namespace MarkdownWebApi.Application.Services;
 

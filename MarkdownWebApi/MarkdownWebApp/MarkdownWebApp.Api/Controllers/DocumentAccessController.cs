@@ -1,9 +1,7 @@
 ﻿using System.Security.Claims;
-using MarkdownWebApi.Application.Assistants;
 using MarkdownWebApi.Application.Contracts.Accesses;
 using MarkdownWebApi.Application.Contracts.Documents;
 using MarkdownWebApi.Application.Interfaces.Services;
-using MarkdownWebApi.Core.Models;
 using MarkdownWebApp.Api.Controllers.Handlers;
 using MarkdownWebApp.Api.Filters.AccessFilters;
 using Microsoft.AspNetCore.Authorization;
