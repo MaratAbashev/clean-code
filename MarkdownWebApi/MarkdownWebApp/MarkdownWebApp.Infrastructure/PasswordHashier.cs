@@ -1,5 +1,4 @@
 ﻿using System.Security.Cryptography;
-using MarkdownWebApi.Application;
 using MarkdownWebApi.Application.Interfaces.Auth;
 
 namespace MarkdownWebApi.Infrastructure;

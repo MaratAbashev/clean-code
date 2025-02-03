@@ -1,0 +1,21 @@
+# This is a generated file. Not intended for manual editing.
+services:
+  markdownwebapp.api:
+    build:
+      context: "D:\\ControlWork1\\Markdown\\clean-code\\MarkdownWebApi\\MarkdownWebApp"
+      dockerfile: "MarkdownWebApp.Api/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net8.0/MarkdownWebApp.Api.dll"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    image: "markdownwebapp.api:dev"
+    ports: []
+    volumes:
+    - "D:\\ControlWork1\\Markdown\\clean-code\\MarkdownWebApi\\MarkdownWebApp\\MarkdownWebApp.Api:/app:rw"
+    - "D:\\ControlWork1\\Markdown\\clean-code\\MarkdownWebApi\\MarkdownWebApp:/src:rw"
+    - "C:\\Users\\Marat\\.nuget\\packages:/home/app/.nuget/packages"
+    working_dir: "/app"

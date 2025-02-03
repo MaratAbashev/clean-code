@@ -13,7 +13,7 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration
-    .AddJsonFile("appsettings.Secrets.json", optional: true, reloadOnChange: true);
+    .AddEnvironmentVariables();
 builder.Services.Configure<MinioOptions>(builder.Configuration.GetSection(nameof(MinioOptions)));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
